@@ -4,6 +4,15 @@
 
 :root {
   --primary-orange: #ff6b35;
+  --primary-orange-hover: #e55a2b;
+  --primary-orange-light: #fff3f0;
+  --sidebar-bg: #f8f9fa;
+  --border-color: #e5e7eb;
+  --message-sent: #dcf8c6;
+}
+
+:root {
+  --primary-orange: #ff6b35;
   --primary-orange-light: #fff4f0;
   --primary-orange-hover: #ff5722;
   --message-sent: #dcf8c6;

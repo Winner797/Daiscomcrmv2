@@ -4,7 +4,7 @@ import Dashboard from './components/Dashboard';
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeSection, setActiveSection] = useState('whatsapp');
+  const [activeSection, setActiveSection] = useState('conversations');
 
   return (
     <div className="min-h-screen bg-white flex">
