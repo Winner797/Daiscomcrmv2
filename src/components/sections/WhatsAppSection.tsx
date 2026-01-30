@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageCircle, Search, Send, Phone, MoreVertical, Paperclip, Smile, X } from 'lucide-react';
+import { MessageCircle, Search, Send, Phone, MoreVertical, Paperclip, Smile, X, Check, CheckCheck } from 'lucide-react';
 
 interface WhatsAppMessage {
   id: number;
@@ -17,6 +17,7 @@ interface Message {
   text: string;
   time: string;
   sent: boolean;
+  messageStatus: 'sent' | 'delivered' | 'read';
 }
 
 export default function WhatsAppSection() {
@@ -24,6 +25,7 @@ export default function WhatsAppSection() {
   const [selectedContact, setSelectedContact] = useState<WhatsAppMessage | null>(null);
   const [messageText, setMessageText] = useState('');
   const [activeNumber, setActiveNumber] = useState('+34 600 123 456');
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const mockMessages: WhatsAppMessage[] = [
     { id: 1, contact: 'Carlos Rodríguez', phone: '+34 612 345 678', lastMessage: 'Perfecto, gracias por la información', time: '10:30', unread: 0, status: 'active' },
@@ -39,10 +41,11 @@ export default function WhatsAppSection() {
   ];
 
   const conversationMessages: Message[] = selectedContact ? [
-    { id: 1, text: '¡Hola! ¿En qué puedo ayudarte?', time: '09:00', sent: true },
-    { id: 2, text: 'Buenos días, quería información sobre el producto', time: '09:05', sent: false },
-    { id: 3, text: 'Claro, con gusto. ¿Qué necesitas saber?', time: '09:06', sent: true },
-    { id: 4, text: selectedContact.lastMessage, time: selectedContact.time, sent: false },
+    { id: 1, text: '¡Hola! ¿En qué puedo ayudarte?', time: '09:00', sent: true, messageStatus: 'read' },
+    { id: 2, text: 'Buenos días, quería información sobre el producto', time: '09:05', sent: false, messageStatus: 'delivered' },
+    { id: 3, text: 'Claro, con gusto. ¿Qué necesitas saber?', time: '09:06', sent: true, messageStatus: 'read' },
+    { id: 4, text: selectedContact.lastMessage, time: selectedContact.time, sent: false, messageStatus: 'delivered' },
+    ...messages
   ] : [];
 
   const filteredMessages = mockMessages.filter(msg =>
@@ -51,9 +54,28 @@ export default function WhatsAppSection() {
   );
 
   const handleSendMessage = () => {
-    if (messageText.trim()) {
-      console.log('Sending message:', messageText);
+    if (messageText.trim() && selectedContact) {
+      const newMessage: Message = {
+        id: Date.now(),
+        text: messageText,
+        time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+        sent: true,
+        messageStatus: 'sent'
+      };
+      setMessages([...messages, newMessage]);
       setMessageText('');
+
+      setTimeout(() => {
+        setMessages(msgs => msgs.map(msg =>
+          msg.id === newMessage.id ? { ...msg, messageStatus: 'delivered' } : msg
+        ));
+      }, 1000);
+
+      setTimeout(() => {
+        setMessages(msgs => msgs.map(msg =>
+          msg.id === newMessage.id ? { ...msg, messageStatus: 'read' } : msg
+        ));
+      }, 2000);
     }
   };
 
@@ -152,9 +174,20 @@ export default function WhatsAppSection() {
                       : 'bg-white border border-gray-200 text-gray-900'
                   }`}>
                     <p className="text-sm">{msg.text}</p>
-                    <p className={`text-xs mt-1 ${msg.sent ? 'text-green-100' : 'text-gray-500'}`}>
-                      {msg.time}
-                    </p>
+                    <div className="flex items-center justify-end gap-1 mt-1">
+                      <span className={`text-xs ${msg.sent ? 'text-green-100' : 'text-gray-500'}`}>
+                        {msg.time}
+                      </span>
+                      {msg.sent && (
+                        msg.messageStatus === 'sent' ? (
+                          <Check size={14} className="text-green-100" />
+                        ) : msg.messageStatus === 'delivered' ? (
+                          <CheckCheck size={14} className="text-green-100" />
+                        ) : (
+                          <CheckCheck size={14} className="text-blue-400" />
+                        )
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

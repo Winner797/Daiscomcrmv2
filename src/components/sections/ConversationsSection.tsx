@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MessageCircle, Mail, MessageSquare, Search, Send, Phone, MoreVertical, Paperclip, Smile, User, Settings as SettingsIcon, Plus, Filter, ChevronDown, CheckCheck } from 'lucide-react';
+import { MessageCircle, Mail, MessageSquare, Search, Send, Phone, MoreVertical, Paperclip, Smile, User, Settings as SettingsIcon, Plus, Filter, ChevronDown, Check, CheckCheck } from 'lucide-react';
 
 const WhatsAppIcon = ({ size = 20 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -29,6 +29,7 @@ interface Message {
   text: string;
   time: string;
   sent: boolean;
+  messageStatus: 'sent' | 'delivered' | 'read';
 }
 
 interface EmailMessage {
@@ -51,6 +52,7 @@ export default function ConversationsSection({ filterType: initialFilterType = '
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messageText, setMessageText] = useState('');
   const [selectedCompanyNumber, setSelectedCompanyNumber] = useState('ventas-principal');
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const companyNumbers = [
     { id: 'ventas-principal', name: 'Ventas Principal', number: '+57 300 123 4567', status: 'active' },
@@ -72,8 +74,9 @@ export default function ConversationsSection({ filterType: initialFilterType = '
   ];
 
   const conversationMessages: Message[] = selectedConversation && selectedConversation.type !== 'email' ? [
-    { id: 1, text: '¡Hola! ¿Cómo estás?', time: '10:30 AM', sent: false },
-    { id: 2, text: '¡Hola! Todo bien, gracias por preguntar. ¿En qué te puedo ayudar?', time: '10:32 AM', sent: true },
+    { id: 1, text: '¡Hola! ¿Cómo estás?', time: '10:30 AM', sent: false, messageStatus: 'delivered' },
+    { id: 2, text: '¡Hola! Todo bien, gracias por preguntar. ¿En qué te puedo ayudar?', time: '10:32 AM', sent: true, messageStatus: 'read' },
+    ...messages
   ] : [];
 
   const emailMessages: EmailMessage[] = selectedConversation && selectedConversation.type === 'email' ? [
@@ -104,9 +107,28 @@ export default function ConversationsSection({ filterType: initialFilterType = '
   });
 
   const handleSendMessage = () => {
-    if (messageText.trim()) {
-      console.log('Sending message:', messageText);
+    if (messageText.trim() && selectedConversation) {
+      const newMessage: Message = {
+        id: Date.now(),
+        text: messageText,
+        time: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+        sent: true,
+        messageStatus: 'sent'
+      };
+      setMessages([...messages, newMessage]);
       setMessageText('');
+
+      setTimeout(() => {
+        setMessages(msgs => msgs.map(msg =>
+          msg.id === newMessage.id ? { ...msg, messageStatus: 'delivered' } : msg
+        ));
+      }, 1000);
+
+      setTimeout(() => {
+        setMessages(msgs => msgs.map(msg =>
+          msg.id === newMessage.id ? { ...msg, messageStatus: 'read' } : msg
+        ));
+      }, 2000);
     }
   };
 
@@ -371,7 +393,13 @@ export default function ConversationsSection({ filterType: initialFilterType = '
                       <div className="flex items-center justify-end gap-1 mt-1">
                         <span className="text-xs text-gray-500">{msg.time}</span>
                         {msg.sent && (
-                          <CheckCheck size={14} className="text-blue-500" />
+                          msg.messageStatus === 'sent' ? (
+                            <Check size={14} className="text-gray-500" />
+                          ) : msg.messageStatus === 'delivered' ? (
+                            <CheckCheck size={14} className="text-gray-500" />
+                          ) : (
+                            <CheckCheck size={14} className="text-blue-500" />
+                          )
                         )}
                       </div>
                     </div>
