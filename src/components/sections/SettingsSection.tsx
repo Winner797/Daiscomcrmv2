@@ -1,5 +1,6 @@
 import React from 'react';
-import { Settings, User, Bell, Shield, Palette } from 'lucide-react';
+import { Settings, User, Bell, Shield, Palette, Link } from 'lucide-react';
+import ApiConnectionTest from '../ApiConnectionTest';
 
 export default function SettingsSection() {
   return (
@@ -11,6 +12,21 @@ export default function SettingsSection() {
         </div>
 
         <div className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <Link className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-semibold text-blue-900">Prueba de Conexión API</h3>
+                <p className="text-sm text-blue-700 mt-1">
+                  Usa esta herramienta para verificar que la conexión con la API de WhatsApp esté funcionando correctamente.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <ApiConnectionTest />
+
+          <div className="border-t pt-6"></div>
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center mb-4">
               <User className="w-5 h-5 text-gray-700 mr-3" />
