@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, X, MessageSquare, Mail, Settings, BarChart3, Lock, MessageCircle } from 'lucide-react';
+import { MessageSquare, Mail, Users, Settings, Bell, BookOpen, PieChart, Bot, Building, Cog, Facebook } from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -10,58 +10,51 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onToggle, activeSection, onSectionChange }: SidebarProps) {
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-    { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle },
-    { id: 'chatweb', label: 'Chat Web', icon: MessageSquare },
-    { id: 'email', label: 'Email', icon: Mail },
-    { id: 'permissions', label: 'Permisos', icon: Lock },
-    { id: 'settings', label: 'Configuración', icon: Settings },
+    { id: 'conversations', label: 'Conversaciones', icon: MessageSquare, badge: '7' },
+    { id: 'whatsapp', label: 'WhatsApp', icon: MessageSquare },
+    { id: 'messenger', label: 'Messenger', icon: Facebook },
+    { id: 'email', label: 'Correo', icon: Mail },
+    { id: 'notifications', label: 'Notificaciones', icon: Bell, badge: '12' },
+    { id: 'contacts', label: 'Contactos', icon: Users },
+    { id: 'groups', label: 'Grupos', icon: Users },
+    { id: 'templates', label: 'Plantillas', icon: BookOpen },
+    { id: 'analytics', label: 'Analíticas', icon: PieChart },
+    { id: 'automation', label: 'Automatización', icon: Bot },
+    { id: 'company-numbers', label: 'Números Empresa', icon: Building },
+    { id: 'settings', label: 'Configuración', icon: Cog },
   ];
 
   return (
-    <>
-      <div className={`${isOpen ? 'w-64' : 'w-20'} bg-gradient-to-b from-slate-900 to-slate-800 text-white transition-all duration-300 fixed h-screen left-0 top-0 shadow-xl flex flex-col`}>
-        <div className="p-4 border-b border-slate-700 flex items-center justify-between">
-          <div className={`font-bold text-xl ${isOpen ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}>
-            CRM
-          </div>
-          <button onClick={onToggle} className="p-2 hover:bg-slate-700 rounded-lg transition-colors">
-            {isOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
-
-        <nav className="flex-1 py-6 px-3 space-y-2">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                onClick={() => onSectionChange(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                  activeSection === item.id
-                    ? 'bg-blue-600 shadow-lg'
-                    : 'hover:bg-slate-700'
-                }`}
-              >
-                <Icon size={20} className="flex-shrink-0" />
-                {isOpen && <span className="text-sm font-medium">{item.label}</span>}
-              </button>
-            );
-          })}
+    <aside className="w-64 bg-[var(--sidebar-bg)] border-r border-[var(--border-color)] h-screen overflow-y-auto">
+      <div className="flex flex-col h-full">
+        <nav className="flex-1 py-4">
+          <ul className="space-y-1 px-3">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <li key={item.id}>
+                  <button
+                    onClick={() => onSectionChange(item.id)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all relative ${
+                      activeSection === item.id
+                        ? 'bg-[var(--primary-orange-light)] text-[var(--primary-orange)]'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Icon size={20} />
+                    <span className="flex-1 text-left text-sm font-medium">{item.label}</span>
+                    {item.badge && (
+                      <span className="bg-[var(--primary-orange)] text-white text-xs font-bold px-2 py-1 rounded-full min-w-[24px] text-center">
+                        {item.badge}
+                      </span>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
         </nav>
-
-        <div className="p-4 border-t border-slate-700">
-          <div className={`flex items-center gap-3 ${isOpen ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600" />
-            <div className="text-sm">
-              <p className="font-medium">Admin</p>
-              <p className="text-xs text-gray-400">super@crm.com</p>
-            </div>
-          </div>
-        </div>
       </div>
-
-      <div className={`${isOpen ? 'w-64' : 'w-20'} transition-all duration-300`} />
-    </>
+    </aside>
   );
 }

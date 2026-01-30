@@ -4,12 +4,12 @@ import Dashboard from './components/Dashboard';
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const [activeSection, setActiveSection] = useState('whatsapp');
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-white flex">
       <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} activeSection={activeSection} onSectionChange={setActiveSection} />
-      <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-0' : 'ml-0'}`}>
+      <main className="flex-1 overflow-hidden">
         <Dashboard activeSection={activeSection} onNavigate={setActiveSection} />
       </main>
     </div>

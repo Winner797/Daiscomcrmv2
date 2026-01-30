@@ -11,11 +11,12 @@ interface DashboardProps {
 
 export default function Dashboard({ activeSection, onNavigate }: DashboardProps) {
   return (
-    <div className="p-8 min-h-screen">
+    <div className="h-screen overflow-hidden">
       {activeSection === 'dashboard' && <DashboardHome onNavigate={onNavigate} />}
+      {activeSection === 'conversations' && <ConversationsSection filterType="all" />}
       {activeSection === 'whatsapp' && <ConversationsSection filterType="whatsapp" />}
+      {activeSection === 'messenger' && <ConversationsSection filterType="messenger" />}
       {activeSection === 'email' && <ConversationsSection filterType="email" />}
-      {activeSection === 'chatweb' && <ConversationsSection filterType="chatweb" />}
       {activeSection === 'permissions' && <PermissionsSection />}
       {activeSection === 'settings' && <SettingsSection />}
     </div>
