@@ -10,6 +10,7 @@ import AutomationSection from './sections/AutomationSection';
 import CompanyNumbersSection from './sections/CompanyNumbersSection';
 import PermissionsSection from './sections/PermissionsSection';
 import SettingsSection from './sections/SettingsSection';
+import EmailSection from './sections/EmailSection';
 
 interface DashboardProps {
   activeSection: string;
@@ -23,7 +24,7 @@ export default function Dashboard({ activeSection, onNavigate }: DashboardProps)
       {activeSection === 'conversations' && <ConversationsSection filterType="all" />}
       {activeSection === 'whatsapp' && <ConversationsSection filterType="whatsapp" />}
       {activeSection === 'messenger' && <ConversationsSection filterType="messenger" />}
-      {activeSection === 'email' && <ConversationsSection filterType="email" />}
+      {activeSection === 'email' && <EmailSection />}
       {activeSection === 'notifications' && <NotificationsSection />}
       {activeSection === 'contacts' && <ContactsSection />}
       {activeSection === 'groups' && <GroupsSection />}
