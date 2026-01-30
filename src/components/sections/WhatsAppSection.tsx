@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MessageCircle, Search, Send, Phone, MoreVertical, Paperclip, Smile, X, Check, CheckCheck, RefreshCw } from 'lucide-react';
+import { MessageCircle, Search, Send, Phone, MoreVertical, Paperclip, Smile, X, Check, CheckCheck, RefreshCw, Bug } from 'lucide-react';
 import { whatsappService } from '../../services/whatsappService';
 import type { WhatsAppThread, WhatsAppMessage as WhatsAppMessageType } from '../../types/whatsapp';
 
@@ -18,6 +18,8 @@ export default function WhatsAppSection() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showDebug, setShowDebug] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
   const idShop = 1;
 
   useEffect(() => {
@@ -36,9 +38,28 @@ export default function WhatsAppSection() {
       setLoading(true);
       setError(null);
       const data = await whatsappService.getThreads(idShop);
+
+      setDebugInfo({
+        timestamp: new Date().toISOString(),
+        endpoint: 'getThreads',
+        idShop,
+        dataReceived: data,
+        dataType: Array.isArray(data) ? 'array' : typeof data,
+        dataLength: Array.isArray(data) ? data.length : 'N/A',
+        firstItem: Array.isArray(data) && data.length > 0 ? data[0] : null
+      });
+
+      console.log('Threads received:', data);
       setThreads(data);
-    } catch (err) {
-      setError('Error al cargar conversaciones');
+    } catch (err: any) {
+      const errorMsg = err?.message || 'Error desconocido';
+      setError(`Error al cargar conversaciones: ${errorMsg}`);
+      setDebugInfo({
+        timestamp: new Date().toISOString(),
+        endpoint: 'getThreads',
+        error: errorMsg,
+        fullError: err
+      });
       console.error('Error loading threads:', err);
     } finally {
       setLoading(false);
@@ -48,9 +69,27 @@ export default function WhatsAppSection() {
   const loadMessages = async (threadId: number) => {
     try {
       const data = await whatsappService.getMessages(threadId);
+      console.log(`Messages for thread ${threadId}:`, data);
       setMessages(data);
-    } catch (err) {
+
+      setDebugInfo({
+        timestamp: new Date().toISOString(),
+        endpoint: 'getMessages',
+        threadId,
+        dataReceived: data,
+        dataType: Array.isArray(data) ? 'array' : typeof data,
+        dataLength: Array.isArray(data) ? data.length : 'N/A',
+        firstMessage: Array.isArray(data) && data.length > 0 ? data[0] : null
+      });
+    } catch (err: any) {
       console.error('Error loading messages:', err);
+      setDebugInfo({
+        timestamp: new Date().toISOString(),
+        endpoint: 'getMessages',
+        threadId,
+        error: err?.message || 'Error desconocido',
+        fullError: err
+      });
     }
   };
 
@@ -118,19 +157,78 @@ export default function WhatsAppSection() {
           <span className="text-xs text-gray-600">Número activo:</span>
           <span className="text-sm font-medium">{activeNumber || 'Cargando...'}</span>
         </div>
-        <button
-          onClick={loadThreads}
-          disabled={loading}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
-          title="Actualizar conversaciones"
-        >
-          <RefreshCw size={16} className={`text-gray-600 ${loading ? 'animate-spin' : ''}`} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowDebug(!showDebug)}
+            className={`p-2 hover:bg-gray-100 rounded-full transition-colors ${showDebug ? 'bg-yellow-100 text-yellow-600' : 'text-gray-600'}`}
+            title="Ver información de debug"
+          >
+            <Bug size={16} />
+          </button>
+          <button
+            onClick={loadThreads}
+            disabled={loading}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
+            title="Actualizar conversaciones"
+          >
+            <RefreshCw size={16} className={`text-gray-600 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
       </div>
 
       {error && (
         <div className="px-4 py-2 bg-red-50 border-b border-red-200">
           <p className="text-sm text-red-600">{error}</p>
+        </div>
+      )}
+
+      {showDebug && debugInfo && (
+        <div className="px-4 py-3 bg-yellow-50 border-b border-yellow-200">
+          <div className="flex items-start justify-between mb-2">
+            <h3 className="font-semibold text-sm text-yellow-900">Información de Debug</h3>
+            <button
+              onClick={() => setShowDebug(false)}
+              className="text-yellow-600 hover:text-yellow-800"
+            >
+              <X size={16} />
+            </button>
+          </div>
+          <div className="space-y-1 text-xs">
+            <div className="flex gap-2">
+              <span className="font-medium text-yellow-900">Endpoint:</span>
+              <span className="text-yellow-700">{debugInfo.endpoint}</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="font-medium text-yellow-900">Timestamp:</span>
+              <span className="text-yellow-700">{debugInfo.timestamp}</span>
+            </div>
+            {debugInfo.dataType && (
+              <div className="flex gap-2">
+                <span className="font-medium text-yellow-900">Tipo de datos:</span>
+                <span className="text-yellow-700">{debugInfo.dataType}</span>
+              </div>
+            )}
+            {debugInfo.dataLength !== undefined && (
+              <div className="flex gap-2">
+                <span className="font-medium text-yellow-900">Cantidad de items:</span>
+                <span className="text-yellow-700 font-bold">{debugInfo.dataLength}</span>
+              </div>
+            )}
+            {debugInfo.error && (
+              <div className="flex gap-2">
+                <span className="font-medium text-red-700">Error:</span>
+                <span className="text-red-600">{debugInfo.error}</span>
+              </div>
+            )}
+          </div>
+          <details className="mt-2">
+            <summary className="text-xs cursor-pointer text-yellow-700 hover:text-yellow-900 font-medium">
+              Ver datos completos (JSON)
+            </summary>
+            <pre className="mt-2 p-2 bg-white rounded text-xs overflow-auto max-h-60 border border-yellow-200">
+              {JSON.stringify(debugInfo, null, 2)}
+            </pre>
+          </details>
         </div>
       )}
 
@@ -155,8 +253,14 @@ export default function WhatsAppSection() {
                 <RefreshCw size={24} className="text-gray-400 animate-spin" />
               </div>
             ) : filteredThreads.length === 0 ? (
-              <div className="flex items-center justify-center py-8">
-                <p className="text-sm text-gray-500">No hay conversaciones</p>
+              <div className="flex flex-col items-center justify-center py-8 px-4">
+                <MessageCircle size={48} className="text-gray-300 mb-3" />
+                <p className="text-sm text-gray-600 font-medium mb-1">No hay conversaciones</p>
+                <p className="text-xs text-gray-500 text-center">
+                  {threads.length === 0
+                    ? 'La API no devolvió ninguna conversación. Verifica el botón de debug arriba.'
+                    : 'Tu búsqueda no coincide con ninguna conversación'}
+                </p>
               </div>
             ) : (
               filteredThreads.map((thread) => (
