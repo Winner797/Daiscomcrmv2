@@ -116,10 +116,6 @@ body {
 
 /* Main Container */
 .main-container {
-<<<<<<< HEAD
-    margin-top: 80px;
-=======
->>>>>>> 2eb68f7df882a0a1b2a455bd4dcf0bf49cceeb55
     height: calc(100vh - 80px);
     overflow: hidden;
 }
