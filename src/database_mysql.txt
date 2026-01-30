@@ -1,0 +1,309 @@
+CREATE TABLE `tv_crm_chat_web_history` (
+ `id` bigint(10) NOT NULL AUTO_INCREMENT,
+ `id_thread` bigint(10) NOT NULL,
+ `id_shop` int(10) NOT NULL,
+ `id_employee` int(10) DEFAULT NULL,
+ `action_type` enum('assigned','closed','reopened','transferred','escalated','note_added') NOT NULL,
+ `action_detail` text DEFAULT NULL,
+ `duration` int(10) DEFAULT NULL,
+ `messages_count` int(10) DEFAULT NULL,
+ `rating` int(1) DEFAULT NULL,
+ `customer_feedback` text DEFAULT NULL,
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ PRIMARY KEY (`id`),
+ KEY `id_thread` (`id_thread`),
+ KEY `id_shop` (`id_shop`),
+ KEY `id_employee` (`id_employee`),
+ CONSTRAINT `fk_chat_web_history_thread` FOREIGN KEY (`id_thread`) REFERENCES `tv_crm_chat_web_threads` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+
+tv_crm_chat_web_messages	CREATE TABLE `tv_crm_chat_web_messages` (
+ `id` bigint(11) NOT NULL AUTO_INCREMENT,
+ `id_chat_web_thread` bigint(10) NOT NULL,
+ `message_id` varchar(255) NOT NULL,
+ `id_shop` int(10) NOT NULL,
+ `sender_type` enum('visitor','agent','bot') DEFAULT 'visitor',
+ `sender_id` varchar(100) NOT NULL,
+ `sender_name` varchar(100) DEFAULT NULL,
+ `id_employee` int(10) DEFAULT NULL,
+ `message_type` varchar(20) DEFAULT 'text',
+ `message_text` text DEFAULT NULL,
+ `media_id` varchar(200) DEFAULT NULL,
+ `media_path` varchar(500) DEFAULT NULL,
+ `media_type` varchar(50) DEFAULT NULL,
+ `direction` enum('incoming','outgoing') DEFAULT NULL,
+ `status` varchar(50) DEFAULT 'sent',
+ `read` tinyint(1) NOT NULL DEFAULT 0,
+ `read_at` timestamp NULL DEFAULT NULL,
+ `is_notifications` int(1) DEFAULT NULL,
+ `conversation_id` varchar(255) DEFAULT NULL,
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+ PRIMARY KEY (`id`),
+ UNIQUE KEY `message_id` (`message_id`),
+ KEY `id_chat_web_thread` (`id_chat_web_thread`),
+ KEY `id_shop` (`id_shop`),
+ CONSTRAINT `fk_chat_web_messages_thread` FOREIGN KEY (`id_chat_web_thread`) REFERENCES `tv_crm_chat_web_threads` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+
+tv_crm_chat_web_queue	CREATE TABLE `tv_crm_chat_web_queue` (
+ `id` bigint(10) NOT NULL AUTO_INCREMENT,
+ `id_thread` bigint(10) NOT NULL,
+ `id_shop` int(10) NOT NULL,
+ `queue_position` int(10) DEFAULT NULL,
+ `waiting_time` int(10) DEFAULT NULL,
+ `assigned_at` timestamp NULL DEFAULT NULL,
+ `assigned_employee_id` int(10) DEFAULT NULL,
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ PRIMARY KEY (`id`),
+ KEY `id_thread` (`id_thread`),
+ KEY `id_shop` (`id_shop`),
+ CONSTRAINT `fk_chat_web_queue_thread` FOREIGN KEY (`id_thread`) REFERENCES `tv_crm_chat_web_threads` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+
+tv_crm_chat_web_threads	CREATE TABLE `tv_crm_chat_web_threads` (
+ `id` bigint(10) NOT NULL AUTO_INCREMENT,
+ `thread_id` varchar(50) NOT NULL,
+ `id_visitor` bigint(10) NOT NULL,
+ `id_shop` int(10) NOT NULL,
+ `channel` varchar(50) NOT NULL DEFAULT 'chatweb',
+ `assistant_chat` tinyint(1) NOT NULL DEFAULT 1,
+ `assigned_employee_id` int(10) DEFAULT NULL,
+ `thread_status` enum('open','closed','pending','waiting_agent') DEFAULT 'open',
+ `priority` enum('low','normal','high') DEFAULT 'normal',
+ `date_add` datetime NOT NULL DEFAULT current_timestamp(),
+ `date_close` datetime DEFAULT NULL,
+ `topic` varchar(255) DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ UNIQUE KEY `thread_id` (`thread_id`),
+ KEY `id_visitor` (`id_visitor`),
+ KEY `id_shop` (`id_shop`),
+ CONSTRAINT `fk_chat_web_threads_visitor` FOREIGN KEY (`id_visitor`) REFERENCES `tv_crm_chat_web_visitors` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+
+tv_crm_chat_web_visitors	CREATE TABLE `tv_crm_chat_web_visitors` (
+ `id` bigint(10) NOT NULL AUTO_INCREMENT,
+ `visitor_id` varchar(100) NOT NULL,
+ `id_shop` int(10) NOT NULL,
+ `visitor_name` varchar(100) DEFAULT NULL,
+ `visitor_email` varchar(255) DEFAULT NULL,
+ `visitor_phone` varchar(20) DEFAULT NULL,
+ `ip_address` varchar(45) DEFAULT NULL,
+ `user_agent` varchar(500) DEFAULT NULL,
+ `page_url` varchar(500) DEFAULT NULL,
+ `chat_started_at` datetime NOT NULL DEFAULT current_timestamp(),
+ `last_activity` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+ `chat_status` enum('active','closed','waiting') DEFAULT 'active',
+ `id_customer` int(10) DEFAULT NULL,
+ `id_employee` int(10) DEFAULT NULL,
+ PRIMARY KEY (`id`),
+ UNIQUE KEY `visitor_id` (`visitor_id`),
+ KEY `id_shop` (`id_shop`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+
+tv_crm_configuration	CREATE TABLE `tv_crm_configuration` (
+ `id_crm_configuration` int(10) NOT NULL AUTO_INCREMENT,
+ `id_shop` bigint(10) DEFAULT NULL,
+ `id_app_meta` bigint(100) DEFAULT NULL,
+ `id_page_business` bigint(100) DEFAULT NULL,
+ `channel` varchar(50) DEFAULT NULL,
+ `id_whatsapp` varchar(50) DEFAULT NULL,
+ `id_phone_meta` varchar(100) DEFAULT NULL,
+ `number_whatsapp` varchar(50) DEFAULT NULL,
+ `token_access` varchar(500) DEFAULT NULL,
+ `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+ `date_add` datetime NOT NULL DEFAULT current_timestamp(),
+ PRIMARY KEY (`id_crm_configuration`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+
+tv_crm_email_accounts	CREATE TABLE `tv_crm_email_accounts` (
+ `id` bigint(10) NOT NULL AUTO_INCREMENT,
+ `id_shop` int(10) NOT NULL,
+ `email_address` varchar(255) NOT NULL,
+ `email_name` varchar(255) DEFAULT NULL,
+ `imap_host` varchar(255) NOT NULL,
+ `imap_port` int(5) DEFAULT 993,
+ `imap_encryption` enum('ssl','tls','none') DEFAULT 'ssl',
+ `imap_username` varchar(255) NOT NULL,
+ `imap_password` varchar(255) NOT NULL,
+ `imap_folder_inbox` varchar(100) DEFAULT 'INBOX',
+ `smtp_host` varchar(255) DEFAULT NULL,
+ `smtp_port` int(5) DEFAULT 587,
+ `smtp_encryption` enum('ssl','tls','none') DEFAULT 'tls',
+ `smtp_username` varchar(255) DEFAULT NULL,
+ `smtp_password` varchar(255) DEFAULT NULL,
+ `active` tinyint(1) DEFAULT 1,
+ `sync_interval` int(5) DEFAULT 5,
+ `last_sync` timestamp NULL DEFAULT NULL,
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+ PRIMARY KEY (`id`),
+ UNIQUE KEY `unique_email_shop` (`id_shop`,`email_address`),
+ KEY `id_shop` (`id_shop`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+
+tv_crm_email_attachments	CREATE TABLE `tv_crm_email_attachments` (
+ `id` bigint(11) NOT NULL AUTO_INCREMENT,
+ `id_email_message` bigint(11) NOT NULL,
+ `id_shop` int(10) NOT NULL,
+ `attachment_id` varchar(255) NOT NULL,
+ `file_name` varchar(500) NOT NULL,
+ `file_size` bigint(20) DEFAULT NULL,
+ `file_mime_type` varchar(100) DEFAULT NULL,
+ `file_path` varchar(500) NOT NULL,
+ `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ PRIMARY KEY (`id`),
+ KEY `id_email_message` (`id_email_message`),
+ KEY `id_shop` (`id_shop`),
+ CONSTRAINT `fk_email_attachments_message` FOREIGN KEY (`id_email_message`) REFERENCES `tv_crm_email_messages` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+
+tv_crm_email_messages	CREATE TABLE `tv_crm_email_messages` (
+ `id` bigint(11) NOT NULL AUTO_INCREMENT,
+ `id_email_thread` bigint(10) NOT NULL,
+ `id_shop` int(10) NOT NULL,
+ `message_id` varchar(255) NOT NULL,
+ `in_reply_to` varchar(255) DEFAULT NULL,
+ `from_email` varchar(255) NOT NULL,
+ `from_name` varchar(255) DEFAULT NULL,
+ `to_email` varchar(255) DEFAULT NULL,
+ `cc` text DEFAULT NULL,
+ `bcc` text DEFAULT NULL,
+ `subject` varchar(500) DEFAULT NULL,
+ `body_text` longtext DEFAULT NULL,
+ `body_html` longtext DEFAULT NULL,
+ `sender_type` enum('external','internal') DEFAULT 'external',
+ `id_employee` int(10) DEFAULT NULL,
+ `direction` enum('incoming','outgoing') DEFAULT NULL,
+ `is_read` tinyint(1) DEFAULT 0,
+ `read_at` timestamp NULL DEFAULT NULL,
+ `has_attachments` tinyint(1) DEFAULT 0,
+ `attachment_count` int(3) DEFAULT 0,
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ PRIMARY KEY (`id`),
+ UNIQUE KEY `message_id` (`message_id`),
+ KEY `id_email_thread` (`id_email_thread`),
+ KEY `id_shop` (`id_shop`),
+ CONSTRAINT `fk_email_messages_thread` FOREIGN KEY (`id_email_thread`) REFERENCES `tv_crm_email_threads` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+
+tv_crm_email_permissions	CREATE TABLE `tv_crm_email_permissions` (
+ `id` bigint(10) NOT NULL AUTO_INCREMENT,
+ `id_employee` int(10) NOT NULL,
+ `id_email_account` bigint(10) NOT NULL,
+ `id_shop` int(10) NOT NULL,
+ `permission_type` enum('read','write','delete','manage_labels') NOT NULL,
+ `can_read` tinyint(1) DEFAULT 1,
+ `can_send` tinyint(1) DEFAULT 0,
+ `can_delete` tinyint(1) DEFAULT 0,
+ `can_reply_all` tinyint(1) DEFAULT 0,
+ `can_assign_to_others` tinyint(1) DEFAULT 0,
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+ PRIMARY KEY (`id`),
+ UNIQUE KEY `unique_employee_email` (`id_employee`,`id_email_account`),
+ KEY `id_employee` (`id_employee`),
+ KEY `id_email_account` (`id_email_account`),
+ KEY `id_shop` (`id_shop`),
+ CONSTRAINT `fk_email_permissions_email` FOREIGN KEY (`id_email_account`) REFERENCES `tv_crm_email_accounts` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+
+tv_crm_email_threads	CREATE TABLE `tv_crm_email_threads` (
+ `id` bigint(10) NOT NULL AUTO_INCREMENT,
+ `thread_id` varchar(100) NOT NULL,
+ `id_email_account` bigint(10) NOT NULL,
+ `id_shop` int(10) NOT NULL,
+ `subject` varchar(500) NOT NULL,
+ `from_email` varchar(255) NOT NULL,
+ `from_name` varchar(255) DEFAULT NULL,
+ `to_email` varchar(255) NOT NULL,
+ `assigned_employee_id` int(10) DEFAULT NULL,
+ `thread_status` enum('open','closed','archived','spam','draft') DEFAULT 'open',
+ `priority` enum('low','normal','high','urgent') DEFAULT 'normal',
+ `label` varchar(100) DEFAULT NULL,
+ `message_count` int(10) DEFAULT 0,
+ `unread_count` int(10) DEFAULT 0,
+ `last_message_date` timestamp NULL DEFAULT NULL,
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+ PRIMARY KEY (`id`),
+ UNIQUE KEY `thread_id` (`thread_id`),
+ KEY `id_email_account` (`id_email_account`),
+ KEY `id_shop` (`id_shop`),
+ KEY `assigned_employee_id` (`assigned_employee_id`),
+ CONSTRAINT `fk_email_threads_account` FOREIGN KEY (`id_email_account`) REFERENCES `tv_crm_email_accounts` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+
+tv_crm_notifications_config	CREATE TABLE `tv_crm_notifications_config` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `id_shop` int(11) NOT NULL,
+ `config_json` longtext DEFAULT NULL,
+ `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+
+
+tv_crm_threads_channels	CREATE TABLE `tv_crm_threads_channels` (
+ `id` bigint(10) NOT NULL AUTO_INCREMENT,
+ `entry_id` varchar(50) NOT NULL,
+ `id_shop` int(10) NOT NULL,
+ `date_add` datetime NOT NULL DEFAULT current_timestamp(),
+ `channel` varchar(50) NOT NULL,
+ `contact_name` varchar(100) NOT NULL,
+ `contact_recipient_id` varchar(30) NOT NULL,
+ `assistant_chat` tinyint(1) NOT NULL DEFAULT 1,
+ `id_customer` int(10) NOT NULL DEFAULT 0,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=91 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+
+tv_crm_whatsapp_messages	CREATE TABLE `tv_crm_whatsapp_messages` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `id_crm_threands_channels` int(100) NOT NULL,
+ `object_type` varchar(50) NOT NULL,
+ `entry_id` varchar(100) DEFAULT NULL COMMENT 'id cuentawhatsapp businnes',
+ `phone_number_id` varchar(100) DEFAULT NULL,
+ `display_phone_number` varchar(20) DEFAULT NULL,
+ `wa_id` varchar(50) NOT NULL,
+ `contact_name` varchar(255) DEFAULT NULL,
+ `recipient_id` varchar(50) DEFAULT NULL,
+ `message_id` varchar(255) DEFAULT NULL,
+ `message_type` varchar(20) DEFAULT NULL,
+ `message_text` text DEFAULT NULL,
+ `media_id` varchar(200) DEFAULT NULL,
+ `media_path` varchar(500) DEFAULT NULL,
+ `latitude` varchar(20) DEFAULT NULL,
+ `longitude` varchar(20) DEFAULT NULL,
+ `locationName` varchar(100) DEFAULT NULL,
+ `address` varchar(300) DEFAULT NULL,
+ `message_contact` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '\'[]\'',
+ `direction` enum('incoming','outgoing') DEFAULT NULL,
+ `status` varchar(50) DEFAULT NULL,
+ `status_timestamp` timestamp NULL DEFAULT current_timestamp(),
+ `conversation_id` varchar(255) DEFAULT NULL,
+ `conversation_origin_type` varchar(50) DEFAULT NULL,
+ `pricing_billable` tinyint(1) DEFAULT NULL,
+ `pricing_model` varchar(50) DEFAULT NULL,
+ `pricing_category` varchar(50) DEFAULT NULL,
+ `received_timestamp` bigint(20) DEFAULT NULL,
+ `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+ `read` tinyint(1) NOT NULL DEFAULT 0,
+ `id_shop` int(10) DEFAULT NULL,
+ `id_order` int(10) DEFAULT NULL,
+ `agent` varchar(50) DEFAULT NULL,
+ `id_employee` int(10) DEFAULT NULL,
+ `name_user` varchar(50) NOT NULL,
+ `is_notifications` int(1) DEFAULT NULL,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=17678 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
