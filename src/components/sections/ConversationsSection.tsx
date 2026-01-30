@@ -31,6 +31,17 @@ interface Message {
   sent: boolean;
 }
 
+interface EmailMessage {
+  id: number;
+  subject: string;
+  from: string;
+  to: string;
+  date: string;
+  body: string;
+  cc?: string;
+  attachments?: string[];
+}
+
 interface ConversationsSectionProps {
   filterType?: 'all' | 'whatsapp' | 'messenger' | 'email';
 }
@@ -60,9 +71,29 @@ export default function ConversationsSection({ filterType: initialFilterType = '
     { id: 10, type: 'email', contact: 'Diego Torres', contactInfo: 'diego@startup.io', lastMessage: 'Propuesta comercial', time: 'Ayer', unread: 1, companyNumber: 'Ventas Principal' },
   ];
 
-  const conversationMessages: Message[] = selectedConversation ? [
+  const conversationMessages: Message[] = selectedConversation && selectedConversation.type !== 'email' ? [
     { id: 1, text: '¡Hola! ¿Cómo estás?', time: '10:30 AM', sent: false },
     { id: 2, text: '¡Hola! Todo bien, gracias por preguntar. ¿En qué te puedo ayudar?', time: '10:32 AM', sent: true },
+  ] : [];
+
+  const emailMessages: EmailMessage[] = selectedConversation && selectedConversation.type === 'email' ? [
+    {
+      id: 1,
+      subject: selectedConversation.lastMessage,
+      from: selectedConversation.contactInfo,
+      to: 'ventas@daiscom.com',
+      date: new Date().toLocaleString('es-ES', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      body: `Estimado equipo de Daiscom,\n\nEspero que este correo les encuentre bien. Me pongo en contacto con ustedes para realizar una consulta sobre sus servicios.\n\nMe gustaría obtener más información sobre las opciones disponibles y los precios correspondientes. También me interesaría conocer los tiempos de entrega y las condiciones de pago.\n\n¿Podrían proporcionarme una cotización detallada?\n\nQuedo atento a su respuesta.\n\nSaludos cordiales,\n${selectedConversation.contact}`,
+      cc: '',
+      attachments: []
+    }
   ] : [];
 
   const filteredConversations = mockConversations.filter(conv => {
@@ -198,89 +229,183 @@ export default function ConversationsSection({ filterType: initialFilterType = '
       </div>
 
       {selectedConversation ? (
-        <div className="flex-1 flex flex-col bg-white">
-          <div className="px-6 py-4 bg-white border-b border-[var(--border-color)] flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold ${
-                selectedConversation.type === 'whatsapp' ? 'bg-green-500' :
-                selectedConversation.type === 'messenger' ? 'bg-blue-500' :
-                'bg-red-500'
-              }`}>
-                {selectedConversation.type === 'whatsapp' ? (
-                  <WhatsAppIcon size={24} />
-                ) : selectedConversation.type === 'messenger' ? (
-                  <MessengerIcon size={24} />
-                ) : (
-                  <Mail size={24} />
-                )}
+        selectedConversation.type === 'email' ? (
+          <div className="flex-1 flex flex-col bg-white">
+            <div className="px-6 py-4 bg-white border-b border-[var(--border-color)] flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <button className="px-4 py-2 bg-[var(--primary-orange)] text-white rounded-lg hover:bg-[var(--primary-orange-hover)] transition-colors font-medium">
+                  Responder
+                </button>
+                <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                  Reenviar
+                </button>
+                <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                  Archivar
+                </button>
               </div>
-              <div>
-                <p className="font-semibold text-gray-900">{selectedConversation.contact}</p>
-                <p className="text-sm text-[var(--primary-orange)] font-medium">{selectedConversation.contactInfo}</p>
-                <p className="text-xs text-[var(--primary-orange)]">📱 Línea: {selectedConversation.companyNumber}</p>
-                <p className="text-xs text-gray-500">En línea</p>
+              <div className="flex items-center gap-2">
+                <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                  <Search size={20} className="text-gray-600" />
+                </button>
+                <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                  <MoreVertical size={20} className="text-gray-600" />
+                </button>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <Search size={20} className="text-gray-600" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <Phone size={20} className="text-gray-600" />
-              </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <MoreVertical size={20} className="text-gray-600" />
-              </button>
-            </div>
-          </div>
 
-          <div className="flex-1 overflow-y-auto p-6 bg-[#f0f2f5]">
-            <div className="space-y-2">
-              {conversationMessages.map((msg) => (
-                <div key={msg.id} className={`flex ${msg.sent ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-md px-4 py-2 rounded-lg ${
-                    msg.sent
-                      ? 'bg-[var(--message-sent)] text-gray-900'
-                      : 'bg-white text-gray-900'
-                  }`}>
-                    <p className="text-sm">{msg.text}</p>
-                    <div className="flex items-center justify-end gap-1 mt-1">
-                      <span className="text-xs text-gray-500">{msg.time}</span>
-                      {msg.sent && (
-                        <CheckCheck size={14} className="text-blue-500" />
+            <div className="flex-1 overflow-y-auto">
+              {emailMessages.map((email) => (
+                <div key={email.id} className="max-w-4xl mx-auto p-8">
+                  <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
+                    <div className="p-6 border-b border-gray-200">
+                      <h1 className="text-2xl font-bold text-gray-900 mb-4">{email.subject}</h1>
+
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
+                          <Mail size={24} />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-2">
+                            <div>
+                              <p className="font-semibold text-gray-900">{selectedConversation.contact}</p>
+                              <p className="text-sm text-gray-600">&lt;{email.from}&gt;</p>
+                            </div>
+                            <span className="text-sm text-gray-500">{email.date}</span>
+                          </div>
+
+                          <div className="text-sm text-gray-600 space-y-1">
+                            <p><span className="font-semibold">Para:</span> {email.to}</p>
+                            {email.cc && <p><span className="font-semibold">CC:</span> {email.cc}</p>}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-6">
+                      <div className="prose max-w-none">
+                        <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">
+                          {email.body}
+                        </div>
+                      </div>
+
+                      {email.attachments && email.attachments.length > 0 && (
+                        <div className="mt-6 pt-6 border-t border-gray-200">
+                          <p className="text-sm font-semibold text-gray-700 mb-3">Archivos adjuntos ({email.attachments.length})</p>
+                          <div className="flex flex-wrap gap-2">
+                            {email.attachments.map((attachment, idx) => (
+                              <div key={idx} className="flex items-center gap-2 px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                                <Paperclip size={16} className="text-gray-600" />
+                                <span className="text-sm text-gray-700">{attachment}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       )}
+                    </div>
+
+                    <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 rounded-b-lg">
+                      <div className="flex items-center gap-3">
+                        <button className="px-4 py-2 bg-[var(--primary-orange)] text-white rounded-lg hover:bg-[var(--primary-orange-hover)] transition-colors font-medium">
+                          Responder
+                        </button>
+                        <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                          Responder a todos
+                        </button>
+                        <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                          Reenviar
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
+        ) : (
+          <div className="flex-1 flex flex-col bg-white">
+            <div className="px-6 py-4 bg-white border-b border-[var(--border-color)] flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold ${
+                  selectedConversation.type === 'whatsapp' ? 'bg-green-500' :
+                  selectedConversation.type === 'messenger' ? 'bg-blue-500' :
+                  'bg-red-500'
+                }`}>
+                  {selectedConversation.type === 'whatsapp' ? (
+                    <WhatsAppIcon size={24} />
+                  ) : selectedConversation.type === 'messenger' ? (
+                    <MessengerIcon size={24} />
+                  ) : (
+                    <Mail size={24} />
+                  )}
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">{selectedConversation.contact}</p>
+                  <p className="text-sm text-[var(--primary-orange)] font-medium">{selectedConversation.contactInfo}</p>
+                  <p className="text-xs text-[var(--primary-orange)]">📱 Línea: {selectedConversation.companyNumber}</p>
+                  <p className="text-xs text-gray-500">En línea</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                  <Search size={20} className="text-gray-600" />
+                </button>
+                <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                  <Phone size={20} className="text-gray-600" />
+                </button>
+                <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                  <MoreVertical size={20} className="text-gray-600" />
+                </button>
+              </div>
+            </div>
 
-          <div className="px-6 py-4 bg-white border-t border-[var(--border-color)]">
-            <div className="flex items-center gap-3">
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <Paperclip size={20} className="text-gray-600" />
-              </button>
-              <input
-                type="text"
-                placeholder="Escribe un mensaje..."
-                value={messageText}
-                onChange={(e) => setMessageText(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                className="flex-1 px-4 py-2 text-sm border border-gray-300 rounded-full focus:ring-1 focus:ring-[var(--primary-orange)] focus:border-[var(--primary-orange)]"
-              />
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-                <Smile size={20} className="text-gray-600" />
-              </button>
-              <button
-                onClick={handleSendMessage}
-                className="p-3 bg-[var(--primary-orange)] hover:bg-[var(--primary-orange-hover)] rounded-full transition-colors"
-              >
-                <Send size={20} className="text-white" />
-              </button>
+            <div className="flex-1 overflow-y-auto p-6 bg-[#f0f2f5]">
+              <div className="space-y-2">
+                {conversationMessages.map((msg) => (
+                  <div key={msg.id} className={`flex ${msg.sent ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-md px-4 py-2 rounded-lg ${
+                      msg.sent
+                        ? 'bg-[var(--message-sent)] text-gray-900'
+                        : 'bg-white text-gray-900'
+                    }`}>
+                      <p className="text-sm">{msg.text}</p>
+                      <div className="flex items-center justify-end gap-1 mt-1">
+                        <span className="text-xs text-gray-500">{msg.time}</span>
+                        {msg.sent && (
+                          <CheckCheck size={14} className="text-blue-500" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="px-6 py-4 bg-white border-t border-[var(--border-color)]">
+              <div className="flex items-center gap-3">
+                <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                  <Paperclip size={20} className="text-gray-600" />
+                </button>
+                <input
+                  type="text"
+                  placeholder="Escribe un mensaje..."
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  className="flex-1 px-4 py-2 text-sm border border-gray-300 rounded-full focus:ring-1 focus:ring-[var(--primary-orange)] focus:border-[var(--primary-orange)]"
+                />
+                <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                  <Smile size={20} className="text-gray-600" />
+                </button>
+                <button
+                  onClick={handleSendMessage}
+                  className="p-3 bg-[var(--primary-orange)] hover:bg-[var(--primary-orange-hover)] rounded-full transition-colors"
+                >
+                  <Send size={20} className="text-white" />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )
       ) : (
         <div className="flex-1 flex items-center justify-center bg-[#f0f2f5]">
           <div className="text-center">
