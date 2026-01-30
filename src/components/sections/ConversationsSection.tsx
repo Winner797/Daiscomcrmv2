@@ -84,43 +84,45 @@ export default function ConversationsSection({ filterType: initialFilterType = '
   return (
     <div className="h-screen flex">
       <div className="w-80 bg-white border-r border-[var(--border-color)] flex flex-col">
-        <div className="p-4 border-b border-[var(--border-color)]">
-          <div className="mb-3">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-xs font-bold text-gray-500">NÚMERO ACTIVO</span>
-              <button className="p-1 hover:bg-gray-100 rounded">
-                <SettingsIcon size={16} className="text-[var(--primary-orange)]" />
-              </button>
-            </div>
-            <select
-              value={selectedCompanyNumber}
-              onChange={(e) => setSelectedCompanyNumber(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-[var(--primary-orange)] focus:border-[var(--primary-orange)]"
-            >
-              {companyNumbers.map((cn) => (
-                <option key={cn.id} value={cn.id}>
-                  {cn.name} - {cn.number}
-                </option>
-              ))}
-            </select>
-            {currentCompanyNumber && (
-              <div className="mt-2 p-3 bg-gray-50 rounded-lg flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white">
-                  <WhatsAppIcon size={20} />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="font-semibold text-sm">{currentCompanyNumber.name}</p>
-                    <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded">
-                      Activo
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-600">{currentCompanyNumber.number}</p>
-                </div>
+        {initialFilterType === 'whatsapp' && (
+          <div className="p-4 border-b border-[var(--border-color)]">
+            <div className="mb-3">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs font-bold text-gray-500">NÚMERO ACTIVO</span>
+                <button className="p-1 hover:bg-gray-100 rounded">
+                  <SettingsIcon size={16} className="text-[var(--primary-orange)]" />
+                </button>
               </div>
-            )}
+              <select
+                value={selectedCompanyNumber}
+                onChange={(e) => setSelectedCompanyNumber(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-[var(--primary-orange)] focus:border-[var(--primary-orange)]"
+              >
+                {companyNumbers.map((cn) => (
+                  <option key={cn.id} value={cn.id}>
+                    {cn.name} - {cn.number}
+                  </option>
+                ))}
+              </select>
+              {currentCompanyNumber && (
+                <div className="mt-2 p-3 bg-gray-50 rounded-lg flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white">
+                    <WhatsAppIcon size={20} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-sm">{currentCompanyNumber.name}</p>
+                      <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded">
+                        Activo
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600">{currentCompanyNumber.number}</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="p-4 border-b border-[var(--border-color)]">
           <div className="flex items-center justify-between mb-3">
