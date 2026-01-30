@@ -6,12 +6,13 @@ import SettingsSection from './sections/SettingsSection';
 
 interface DashboardProps {
   activeSection: string;
+  onNavigate: (section: string) => void;
 }
 
-export default function Dashboard({ activeSection }: DashboardProps) {
+export default function Dashboard({ activeSection, onNavigate }: DashboardProps) {
   return (
     <div className="p-8 min-h-screen">
-      {activeSection === 'dashboard' && <DashboardHome />}
+      {activeSection === 'dashboard' && <DashboardHome onNavigate={onNavigate} />}
       {activeSection === 'whatsapp' && <ConversationsSection filterType="whatsapp" />}
       {activeSection === 'email' && <ConversationsSection filterType="email" />}
       {activeSection === 'chatweb' && <ConversationsSection filterType="chatweb" />}

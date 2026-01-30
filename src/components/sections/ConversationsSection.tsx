@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MessageCircle, Mail, MessageSquare, Search, Send, Phone, MoreVertical, Paperclip, Smile, User, MapPin, Tag, X } from 'lucide-react';
 
 interface Conversation {
@@ -39,6 +39,10 @@ export default function ConversationsSection({ filterType: initialFilterType = '
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messageText, setMessageText] = useState('');
   const [showClientInfo, setShowClientInfo] = useState(true);
+
+  useEffect(() => {
+    setFilterType(initialFilterType);
+  }, [initialFilterType]);
 
   const mockConversations: Conversation[] = [
     { id: 1, type: 'whatsapp', contact: 'Carlos Rodríguez', contactInfo: '+34 612 345 678', lastMessage: 'Perfecto, gracias por la información', time: '10:30', unread: 0, status: 'active' },
