@@ -39,18 +39,27 @@ export default function WhatsAppSection() {
       setError(null);
       const data = await whatsappService.getThreads(idShop);
 
+      const normalizedThreads: ThreadWithLastMessage[] = data.map(thread => ({
+        ...thread,
+        lastMessage: thread.last_message,
+        lastMessageTime: thread.last_message_time,
+        created_at: thread.created_at || thread.date_add
+      }));
+
       setDebugInfo({
         timestamp: new Date().toISOString(),
         endpoint: 'getThreads',
         idShop,
         dataReceived: data,
+        normalizedThreads,
         dataType: Array.isArray(data) ? 'array' : typeof data,
         dataLength: Array.isArray(data) ? data.length : 'N/A',
         firstItem: Array.isArray(data) && data.length > 0 ? data[0] : null
       });
 
       console.log('Threads received:', data);
-      setThreads(data);
+      console.log('Normalized threads:', normalizedThreads);
+      setThreads(normalizedThreads);
     } catch (err: any) {
       const errorMsg = err?.message || 'Error desconocido';
       setError(`Error al cargar conversaciones: ${errorMsg}`);
@@ -125,7 +134,8 @@ export default function WhatsAppSection() {
     }
   };
 
-  const formatTime = (timestamp: string) => {
+  const formatTime = (timestamp: string | undefined) => {
+    if (!timestamp) return '';
     const date = new Date(timestamp);
     const now = new Date();
     const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
@@ -279,7 +289,7 @@ export default function WhatsAppSection() {
                       <div className="flex items-center justify-between mb-0.5">
                         <p className="font-medium text-sm text-gray-900 truncate">{thread.contact_name}</p>
                         <span className="text-xs text-gray-500 flex-shrink-0 ml-1">
-                          {thread.lastMessageTime || formatTime(thread.created_at)}
+                          {thread.last_message_time || formatTime(thread.created_at || thread.date_add)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
@@ -354,7 +364,7 @@ export default function WhatsAppSection() {
                         )}
                         <div className="flex items-center justify-end gap-1 mt-1">
                           <span className={`text-xs ${isOutgoing ? 'text-green-100' : 'text-gray-500'}`}>
-                            {formatTime(msg.created_at)}
+                            {formatTime(msg.created_at || msg.updated_at)}
                           </span>
                           {isOutgoing && (
                             msg.status === 'sent' ? (

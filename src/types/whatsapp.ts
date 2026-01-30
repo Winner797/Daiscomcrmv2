@@ -1,16 +1,21 @@
 export interface WhatsAppThread {
   id: number;
-  entry_id: string;
+  entry_id?: string;
   id_shop: number;
   channel: string;
   contact_name: string;
   contact_recipient_id: string;
-  assistant_chat: boolean;
-  id_customer: number;
-  created_at: string;
+  assistant_chat?: boolean;
+  id_customer?: number;
+  date_add?: string;
+  created_at?: string;
+  updated_at?: string;
   unread_count?: number;
   last_message?: string;
   last_message_time?: string;
+  employee_assign?: number;
+  status?: string;
+  id_configuration?: number;
 }
 
 export interface WhatsAppMessage {
