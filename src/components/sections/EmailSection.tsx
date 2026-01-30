@@ -11,7 +11,6 @@ interface EmailThread {
   unread_count: number;
   last_message_date: string;
   assigned_to?: string;
->>>>>>> 2eb68f7df882a0a1b2a455bd4dcf0bf49cceeb55
 }
 
 export default function EmailSection() {
@@ -29,7 +28,8 @@ export default function EmailSection() {
       priority: 'high',
       unread_count: 2,
       last_message_date: 'Hace 2 horas',
-      assigned_to: 'Juan López'    },
+      assigned_to: 'Juan López'
+    },
     {
       id: 2,
       from_email: 'info@empresa.com',
@@ -40,7 +40,8 @@ export default function EmailSection() {
       priority: 'normal',
       unread_count: 1,
       last_message_date: 'Hace 5 horas',
-      assigned_to: 'María López'    },
+      assigned_to: 'María López'
+    },
     {
       id: 3,
       from_email: 'support@vendor.com',
@@ -51,11 +52,8 @@ export default function EmailSection() {
       priority: 'low',
       unread_count: 0,
       last_message_date: 'Ayer',
-<<<<<<< HEAD
-      assigned_to: 'Carlos Ruiz',
-      folder: 'archived'
-=======
-      assigned_to: 'Carlos Ruiz'    }
+      assigned_to: 'Carlos Ruiz'
+    }
   ];
 
   const filteredEmails = mockEmails.filter(email => {
@@ -85,13 +83,8 @@ export default function EmailSection() {
   };
 
   return (
-    <div className="max-w-7xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Emails</h1>
-        <p className="text-gray-600 mt-2">Gestiona todos tus emails en un solo lugar</p>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+    <div className="h-full flex flex-col">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden flex-1 flex flex-col">
         <div className="p-6 border-b border-gray-200">
           <div className="flex gap-4 mb-4">
             <div className="flex-1 relative">
@@ -164,7 +157,7 @@ export default function EmailSection() {
           </div>
         )}
 
-        <div className="divide-y divide-gray-200">
+        <div className="divide-y divide-gray-200 overflow-y-auto flex-1">
           {filteredEmails.map((email) => (
             <div
               key={email.id}

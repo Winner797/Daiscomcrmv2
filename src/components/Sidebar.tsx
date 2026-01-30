@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, X, MessageSquare, Mail, Settings, BarChart3, Lock } from 'lucide-react';
+import { Menu, X, MessageSquare, Mail, Settings, BarChart3, Lock, MessageCircle } from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -11,8 +11,9 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, onToggle, activeSection, onSectionChange }: SidebarProps) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+    { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle },
     { id: 'chatweb', label: 'Chat Web', icon: MessageSquare },
-    { id: 'emails', label: 'Emails', icon: Mail },
+    { id: 'email', label: 'Email', icon: Mail },
     { id: 'permissions', label: 'Permisos', icon: Lock },
     { id: 'settings', label: 'Configuración', icon: Settings },
   ];
